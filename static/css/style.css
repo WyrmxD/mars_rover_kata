@@ -1,0 +1,23 @@
+body {
+	margin: 0px;
+	background-color: darkgray;
+}
+
+#content{
+	margin: auto;
+}
+
+#planet{
+	background-color: black;
+}
+.row{
+	height: 20px;
+}
+.cell{
+	color: white;
+	width: 20px;
+	height: 20px;
+	border: 1px solid white;
+	display: inline-block;
+	text-align: center;
+}
