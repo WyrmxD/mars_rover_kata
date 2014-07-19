@@ -3,6 +3,21 @@ body {
 	background-color: darkgray;
 }
 
+header {
+	margin-bottom: 20px;
+}
+
+#reset_menu{
+	margin: auto;
+	width: 30%;
+	padding-bottom: 10px;
+}
+
+#command_menu{
+	margin: auto;
+	width: 30%;
+}
+
 #content{
 	margin: auto;
 }
