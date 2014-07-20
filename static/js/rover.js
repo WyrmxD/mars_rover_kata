@@ -1,6 +1,6 @@
-var MAX_CELLS = 800;
+var MAX_CELLS = 550;
 var MIN_CELLS = 100;
-var CELL_HEIGHT = 22;
+var CELL_HEIGHT = 32;
 
 function Player(){
 
@@ -19,8 +19,6 @@ function Player(){
 	this.move = function(new_x, new_y){
 		x = new_x;
 		y = new_y;
-
-		console.log("Player moves to: " + x + "," + y)
 	}
 	this.rotateRight = function(){
 		switch(this.getFace()){
@@ -81,7 +79,7 @@ function Player(){
 }
 
 function Planet(cells, cell_height) {
-	var MAX_CELLS = 800;
+	var MAX_CELLS = 550;
 	var MIN_CELLS = 100;
 	var OBSTACLES_RATIO = 20;
 	var side_length = Math.floor(Math.sqrt(cells));
@@ -106,7 +104,7 @@ function Planet(cells, cell_height) {
 	}
 	this.getPos = function(x,y){
 
-		if(typeof positions[x][y] === "undefined"){
+		if(typeof positions[x][y] === "undefined" || positions[x][y] === "&nbsp;" ){
 			return "&nbsp;";
 		}
 		return positions[x][y];
@@ -125,10 +123,10 @@ function Planet(cells, cell_height) {
 		option = Math.floor(Math.random() * OBSTACLES_RATIO +1);
 		switch(option){
 			case 1:
-				return "M";
+				return "meteor";
 				break;
 			case 2:
-				return "~";
+				return "alien";
 				break;
 			default:
 				return "&nbsp;";
@@ -145,7 +143,7 @@ function Planet(cells, cell_height) {
 		var player_x = Math.floor(Math.random() * side_length +1);
 		var player_y = Math.floor(Math.random() * side_length +1);
 
-		positions[player_x][player_y] = "P";
+		positions[player_x][player_y] = 'player';
 		this.player.move(player_x, player_y);
 	}
 	this.insertMotherShip = function(){
@@ -156,7 +154,7 @@ function Planet(cells, cell_height) {
 			var ship_y = Math.floor(Math.random() * side_length +1);
 
 			if( typeof positions[ship_x][ship_y] === "undefined"){
-				positions[ship_x][ship_y] = "X";
+				positions[ship_x][ship_y] = 'mothership';
 				ship_landed = true;
 			}
 		}
@@ -188,11 +186,19 @@ function Planet(cells, cell_height) {
 		this.insertObstacles();
 
 		document.getElementById('planet').innerHTML = drawPlanet(this);
+		drawShip(myPlanet.player);
 		setContentDimension(side_length);
 		enableCommand(true);
+		cleanAlert();
 	}
-	this.checkMove = function(new_x, new_y){
-		if( positions[new_x][new_y] != 'M' && positions[new_x][new_y] != '~'){
+	this.checkMove = function(new_x, new_y){		
+		if( positions[new_x][new_y] != 'meteor' && positions[new_x][new_y] != 'alien'){
+			return true;
+		}
+		return false;
+	}
+	this.checkWins = function(new_x, new_y){
+		if( positions[new_x][new_y] == 'mothership'){
 			return true;
 		}
 		return false;
@@ -200,10 +206,6 @@ function Planet(cells, cell_height) {
 
 	this.setCells(cells);
 	this.cleanPlanet();
-}
-
-var showError = function(message){
-
 }
 
 var checkBounds = function(side_length, player_coord){
@@ -217,16 +219,18 @@ var checkBounds = function(side_length, player_coord){
 
 var processCommand = function(myPlanet){
 
+	cleanAlert();
+
 	var command_string = document.getElementById('command_input').value;
 
 	for(var i = 0; i < command_string.length; i++){
 		var com = command_string[i];
-		console.log('Processing ' + com);
 
 		var player_x = myPlanet.player.getX();
 		var player_y = myPlanet.player.getY();
 		var player_facing = myPlanet.player.getFace();
 		var side_length = myPlanet.getSideLength();
+		var hasWon = false;
 
 		switch(com){
 			case 'f':
@@ -244,9 +248,13 @@ var processCommand = function(myPlanet){
 				player_y = checkBounds(side_length, player_y);
 
 				if(myPlanet.checkMove(player_x, player_y)){
-					myPlanet.setPos(myPlanet.player.getX(), myPlanet.player.getY(), null);
+					hasWon = myPlanet.checkWins(player_x, player_y);
+					myPlanet.setPos(myPlanet.player.getX(), myPlanet.player.getY(), "&nbsp;");
 					myPlanet.player.move(player_x, player_y);
-					myPlanet.setPos(player_x, player_y, 'P');
+					myPlanet.setPos(player_x, player_y, 'player');
+				}else{
+					showAlert('error','Collision on ' + player_x + ',' + player_y);
+					return;
 				}
 				break;
 			case 'b':
@@ -264,9 +272,13 @@ var processCommand = function(myPlanet){
 				player_y = checkBounds(side_length, player_y);
 
 				if(myPlanet.checkMove(player_x, player_y)){
+					hasWon = myPlanet.checkWins(player_x, player_y);
 					myPlanet.setPos(myPlanet.player.getX(), myPlanet.player.getY(), null);
 					myPlanet.player.move(player_x, player_y);
-					myPlanet.setPos(player_x, player_y, 'P');
+					myPlanet.setPos(player_x, player_y, 'player');
+				}else{
+					showAlert('error','Colision on ' + player_x + ',' + player_y);
+					return;
 				}
 				break;
 			case 'r':
@@ -276,12 +288,17 @@ var processCommand = function(myPlanet){
 				myPlanet.player.rotateLeft();
 				break;
 			default:
-				showError('bleh');
+				showAlert('bleh');
 				break;
 		}
 		
-		myPlanet.player.info();
 		document.getElementById('planet').innerHTML = drawPlanet(myPlanet);
+		drawShip(myPlanet.player);
+		if(hasWon){
+			showAlert('success','You win!');
+			enableCommand(false);
+			return;
+		}
 	}
 
 	document.getElementById('command_input').value = '';
@@ -291,16 +308,44 @@ var processCommand = function(myPlanet){
  *	CSS Control Functions
  */
 
+ var drawShip = function(player){
+ 	var rover_class = '';
+ 	switch(player.getFace()){
+ 		case 'N':
+ 			rover_class = 'rover_north';
+ 			break;
+ 		case 'E':
+ 			rover_class = 'rover_east';
+ 			break;
+ 		case 'S':
+ 			rover_class = 'rover_south';
+ 			break;
+ 		case 'W':
+ 			rover_class = 'rover_west';
+ 			break;
+ 	}
+ 	player_x = myPlanet.player.getX();
+ 	player_y = myPlanet.player.getY();
+ 	document.getElementById(player_x+','+player_y).className = "cell " + rover_class;
+ }
+
 var drawPlanet = function(myPlanet){
 	html = "";
 	side_length = myPlanet.getSideLength();
-	for(var i=1; i <= side_length; i++){
-		html += "<div class=\"row\" id=" +i +">";
+	for(var j=1; j <= side_length; j++){
+		html += "<div class=\"row\" id=" + j +">";
 
-		for(var j = 1; j <= side_length; j++){
-			html += "<div class=\"cell\" id=" +i +',' + j +">";
-			html += myPlanet.getPos(j,i);
-			html += "</div>";
+		for(var i = 1; i <= side_length; i++){
+			//html += myPlanet.getPos(j,i);
+			var cell_class = '';
+			if(myPlanet.getPos(i,j) == 'meteor'){
+				cell_class = 'meteor';
+			}else if(myPlanet.getPos(i,j) == 'alien'){
+				cell_class = 'alien';
+			}else if(myPlanet.getPos(i,j) == 'mothership'){
+				cell_class = 'mothership';
+			}
+			html += "<div class=\"cell " + cell_class + "\" id=" +i +',' + j +"></div>"; 
 		}
 		html += "</div>";					
 	}
@@ -312,8 +357,6 @@ var setContentDimension = function(dimension){
 	new_dim = dimension * CELL_HEIGHT + "px";
 	document.getElementById('content').style.height = new_dim;
 	document.getElementById('content').style.width = new_dim;
-
-	console.log(new_dim);
 }
 
 var enableCommand = function(mode){
@@ -322,48 +365,22 @@ var enableCommand = function(mode){
 	document.getElementById('command_input').value = '';
 }
 
+var showAlert = function(type, message){
+	var html = "<span>" + type + ": </span>" + message;
+	document.getElementById('alert-box').innerHTML = html;
+	document.getElementById('alert-box').className = 'alert-box ' + type;
+}
+
+var cleanAlert = function(){
+	document.getElementById('alert-box').innerHTML = '';
+	document.getElementById('alert-box').className = '';
+}
+
 /*
  *	Initialize main objects
  *	Enable items
  */
 
-var myPlanet = new Planet(300, 22);
+var myPlanet = new Planet(300, CELL_HEIGHT);
 enableCommand(false);
 
-/*function callkeydownhandler(evnt, myPlanet) {
-   var ev = (evnt) ? evnt : event;
-   var code=(ev.which) ? ev.which : event.keyCode;
-   //alert("El código de la tecla pulsada es: " + code);
-   switch(code){
-   		case 37:
-   			console.log('<-');
-   			var actual_x = planet.player.getX();
-   			var actual_y = myPlanet.player.getY();
-
-   			var result = myPlanet.checkMove(actual_x-1, actual_y);
-   			if(result){
-   				myPlanet.player.moves(actual_x-1, actual_y);
-   				console.log("Player moved: " + myPlanet.player.getX + "," + myPlanet.player.getY);
-   			}else{
-   				console.log("Player cannot move there.");
-   			}
-   			
-   			break;
-   		case 38:
-   			console.log('^');
-   			break;
-   		case 39:
-   			console.log('->');
-   			break;
-   		case 40:
-   			console.log('_');
-   			break;
-   		default:
-   			break;
-   }
-}
-if (window.document.addEventListener) {
-   window.document.addEventListener("keydown", callkeydownhandler, false);
-} else {
-   window.document.attachEvent("onkeydown", callkeydownhandler(evnt,myPlanet));
-}*/

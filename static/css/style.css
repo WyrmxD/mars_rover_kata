@@ -1,10 +1,12 @@
 body {
 	margin: 0px;
-	background-color: darkgray;
+	background: darkgray url('/static/img/space.jpeg');
+	font-family:Tahoma,Geneva,Arial,sans-serif;
 }
 
 header {
 	margin-bottom: 20px;
+	color: white;
 }
 
 #reset_menu{
@@ -18,21 +20,85 @@ header {
 	width: 30%;
 }
 
+.alert-box {
+    color:#555;
+    border-radius:10px;
+    font-family:Tahoma,Geneva,Arial,sans-serif;font-size:11px;
+    padding:10px 10px 10px 36px;
+    margin:10px;
+}
+
+.alert-box span {
+    font-weight:bold;
+    text-transform:uppercase;
+}
+
+.error {
+    background:#ffecec url('/static/img/error.png') no-repeat 10px 50%;
+    border:1px solid #f5aca6;
+}
+.success {
+    background:#e9ffd9 url('/static/img/success.png') no-repeat 10px 50%;
+    border:1px solid #a6ca8a;
+}
+
 #content{
 	margin: auto;
 }
 
 #planet{
-	background-color: black;
+	background: white url('/static/img/ground.jpg');
 }
 .row{
-	height: 20px;
+	height: 30px;
 }
 .cell{
-	color: white;
-	width: 20px;
-	height: 20px;
-	border: 1px solid white;
+	color: black;
+	width: 30px;
+	height: 30px;
+	border: 1px solid transparent;
 	display: inline-block;
 	text-align: center;
+}
+
+.rover_west{
+    background: url(/static/img/sprite_rover.png) 0 0;
+    background-size: Auto 30px;
+    background-repeat: no-repeat;
+}
+
+.rover_north{
+    background: url(/static/img/sprite_rover.png) -30px 0;
+    background-size: Auto 30px;
+    background-repeat: no-repeat;
+}
+
+.rover_east{
+    background: url(/static/img/sprite_rover.png) -60px 0;
+    background-size: Auto 30px;
+    background-repeat: no-repeat;
+}
+
+.rover_south{
+    background: url(/static/img/sprite_rover.png) -90px 0;
+    background-size: Auto 30px;
+    background-repeat: no-repeat;
+}
+
+.mothership{
+	background: url(/static/img/mothership.png) 0 0;
+    background-size: Auto 30px;
+    background-repeat: no-repeat;
+}
+
+.alien{
+	background: url(/static/img/alien.png) 0 0;
+    background-size: Auto 30px;
+    background-repeat: no-repeat;
+}
+
+.meteor{
+	background: url(/static/img/meteor.png) 0 0;
+    background-size: Auto 30px;
+    background-repeat: no-repeat;
 }
