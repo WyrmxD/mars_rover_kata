@@ -288,6 +288,7 @@ var processCommand = function(myPlanet){
 				break;
 			default:
 				showAlert('error', 'Use l r to turn and f b to move yor rover.');
+				document.getElementById('command_input').value = '';
 				return;
 				break;
 		}
