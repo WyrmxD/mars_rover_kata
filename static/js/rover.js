@@ -110,12 +110,11 @@ function Planet(cells, cell_height) {
 		return positions[x][y];
 	}
 	this.setCells = function(new_cells){
+		cells = new_cells;
 		if(new_cells < MIN_CELLS){
 			cells = MIN_CELLS;
 		}else if(new_cells > MAX_CELLS){
 			cells = MAX_CELLS;
-		}else {
-			cells = new_cells;
 		}
 		side_length = Math.floor(Math.sqrt(cells));		
 	}
@@ -288,7 +287,8 @@ var processCommand = function(myPlanet){
 				myPlanet.player.rotateLeft();
 				break;
 			default:
-				showAlert('bleh');
+				showAlert('error', 'Use l r to turn and f b to move yor rover.');
+				return;
 				break;
 		}
 		
